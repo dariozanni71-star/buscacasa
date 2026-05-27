@@ -1,0 +1,457 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>BuscaCasa — Darío</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f0f0f;--surface:#1a1a1a;--surface2:#242424;--border:#2e2e2e;
+  --gold:#c9a84c;--gold-light:#e8c97a;--gold-dim:rgba(201,168,76,0.13);
+  --text:#f0ece4;--muted:#888;--dim:#444;
+  --green:#4caf7d;--red:#e05c5c;--blue:#5b9bd5;
+  --r:12px;--rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:15px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;}
+.logo{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:var(--gold);}
+.logo span{color:var(--text);font-weight:400;}
+.badge{margin-left:auto;background:var(--gold-dim);border:1px solid var(--gold);color:var(--gold);font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+.wrap{max-width:660px;margin:0 auto;padding:16px 13px 90px;}
+.dots{display:flex;gap:5px;margin-bottom:18px;}
+.dot{flex:1;height:3px;border-radius:2px;background:var(--border);transition:background .4s;}
+.dot.active{background:var(--gold);}
+.dot.done{background:var(--green);}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:13px;overflow:visible;transition:border-color .3s;}
+.card.open{border-color:var(--gold);}
+.card.locked{opacity:.33;pointer-events:none;}
+.card-head{padding:14px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+.sn{width:26px;height:26px;border-radius:50%;background:var(--gold-dim);border:1px solid var(--gold);color:var(--gold);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;}
+.sn.done{background:var(--green);border-color:var(--green);color:#fff;}
+.card-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;}
+.card-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.arrow{margin-left:auto;color:var(--dim);font-size:16px;transition:transform .3s;}
+.card.open .arrow{transform:rotate(180deg);color:var(--gold);}
+.card-body{display:none;padding:0 16px 16px;}
+.card.open .card-body{display:block;}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:10px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;}
+.opcion{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:9px 10px;text-align:left;cursor:pointer;transition:all .18s;line-height:1.3;}
+.opcion:hover{border-color:var(--gold);color:var(--gold);}
+.opcion.sel{background:var(--gold-dim);border-color:var(--gold);color:var(--gold-light);font-weight:600;}
+.p2col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.campo label{display:block;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.7px;text-transform:uppercase;margin-bottom:4px;}
+.campo input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:9px 10px;outline:none;transition:border-color .2s;}
+.campo input:focus{border-color:var(--gold);}
+.nota{font-size:11px;color:var(--muted);background:var(--surface2);border-radius:var(--rs);padding:7px 10px;margin-bottom:11px;}
+.nota b{color:var(--gold);}
+.inmob-lista{display:flex;flex-direction:column;gap:6px;margin-bottom:4px;}
+.inmob-contador{font-size:11px;color:var(--muted);margin-bottom:8px;}
+.inmob-contador b{color:var(--gold);}
+.inmob-row{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;display:flex;align-items:center;gap:9px;transition:border-color .2s;}
+.inmob-row.sel{border-color:var(--gold);background:var(--gold-dim);}
+.inmob-ico{width:30px;height:30px;border-radius:6px;background:var(--gold-dim);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.inmob-info{flex:1;min-width:0;}
+.inmob-nombre{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.inmob-zona{font-size:10px;color:var(--muted);margin-top:1px;}
+.inmob-btns{display:flex;gap:5px;flex-shrink:0;}
+.btn-elegir{font-size:10px;font-weight:700;padding:4px 9px;border-radius:16px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;white-space:nowrap;}
+.btn-elegir:hover{border-color:var(--gold);color:var(--gold);}
+.inmob-row.sel .btn-elegir{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);}
+.btn-web{font-size:10px;font-weight:700;padding:4px 9px;border-radius:16px;border:1px solid var(--blue);background:transparent;color:var(--blue);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap;}
+.btn-web:hover{background:rgba(91,155,213,.15);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:10px 16px;cursor:pointer;transition:all .2s;text-decoration:none;}
+.btn-gold{background:var(--gold);color:#0f0f0f;}
+.btn-gold:hover{background:var(--gold-light);}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold);}
+.btn-full{width:100%;}
+.btn-sm{font-size:11px;padding:6px 11px;}
+.btn-danger{background:transparent;border:1px solid var(--red);color:var(--red);font-size:11px;padding:5px 8px;}
+.howto{background:rgba(91,155,213,.07);border:1px solid rgba(91,155,213,.4);border-radius:var(--rs);padding:12px 13px;margin-bottom:12px;}
+.howto-tit{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--blue);margin-bottom:7px;}
+.howto ol{padding-left:15px;}
+.howto li{font-size:12px;color:var(--muted);line-height:1.6;}
+.howto li strong{color:var(--text);}
+.propform{background:var(--surface);border:1px solid var(--gold);border-radius:var(--r);padding:15px;margin-bottom:13px;display:none;}
+.propform.vis{display:block;}
+.fr{margin-bottom:10px;}
+.fr label{display:block;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.7px;text-transform:uppercase;margin-bottom:4px;}
+.fr input,.fr textarea,.fr select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 10px;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none;}
+.fr input:focus,.fr textarea:focus,.fr select:focus{border-color:var(--gold);}
+.fr input::placeholder,.fr textarea::placeholder{color:var(--dim);}
+.fr textarea{resize:vertical;min-height:60px;}
+.fr select option{background:var(--surface2);}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.form-tit{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;color:var(--gold);margin-bottom:12px;}
+.plist{display:flex;flex-direction:column;gap:10px;}
+.pcard{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;position:relative;}
+.pestado{position:absolute;top:10px;right:10px;font-size:9px;font-weight:700;letter-spacing:.4px;padding:2px 7px;border-radius:16px;text-transform:uppercase;}
+.pestado.interesa{background:rgba(76,175,125,.15);color:var(--green);border:1px solid var(--green);}
+.pestado.descartada{background:rgba(224,92,92,.12);color:var(--red);border:1px solid var(--red);}
+.pestado.pendiente{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold);}
+.pdir{font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px;padding-right:90px;}
+.pmeta{font-size:11px;color:var(--muted);margin-bottom:6px;}
+.pprecio{font-size:17px;font-weight:700;color:var(--gold);margin-bottom:6px;}
+.ptags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;}
+.ptag{font-size:10px;font-weight:600;padding:2px 6px;border-radius:16px;background:var(--surface);border:1px solid var(--border);color:var(--muted);}
+.ptag.ok{border-color:var(--green);color:var(--green);background:rgba(76,175,125,.08);}
+.pacciones{display:flex;gap:5px;flex-wrap:wrap;}
+.fbar{display:flex;gap:6px;margin-bottom:11px;flex-wrap:wrap;}
+.fchip{background:var(--surface2);border:1px solid var(--border);border-radius:16px;color:var(--muted);font-size:11px;font-weight:500;padding:4px 10px;cursor:pointer;transition:all .2s;}
+.fchip.active{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);}
+.cnt{display:inline-flex;align-items:center;justify-content:center;background:var(--gold);color:#0f0f0f;font-size:9px;font-weight:800;width:15px;height:15px;border-radius:50%;margin-left:4px;vertical-align:middle;}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.87);z-index:200;overflow-y:auto;padding:16px 13px;}
+.modal.vis{display:flex;align-items:flex-start;justify-content:center;}
+.modal-box{background:var(--surface);border:1px solid var(--gold);border-radius:var(--r);padding:20px;max-width:560px;width:100%;}
+.modal-tit{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:var(--gold);}
+.modal-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.msec{margin-bottom:14px;}
+.msec-tit{font-size:9px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--gold);border-bottom:1px solid var(--border);padding-bottom:5px;margin-bottom:8px;}
+.mfila{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;border-bottom:1px solid var(--border);gap:10px;}
+.mfila:last-child{border-bottom:none;}
+.mlab{font-size:11px;color:var(--muted);flex-shrink:0;}
+.mval{font-size:12px;font-weight:600;color:var(--text);text-align:right;}
+.mval.gold{color:var(--gold);font-size:14px;}
+.mnotas{background:var(--surface2);border-radius:var(--rs);padding:8px 10px;font-size:12px;color:var(--muted);line-height:1.5;}
+.modal-btns{display:flex;gap:6px;margin-top:14px;}
+.empty{text-align:center;padding:30px 15px;color:var(--dim);}
+.empty .ei{font-size:30px;margin-bottom:7px;}
+.empty p{font-size:12px;line-height:1.6;}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--green);color:#fff;font-size:12px;font-weight:600;padding:8px 16px;border-radius:25px;z-index:300;transition:transform .28s;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+hr{border:none;border-top:1px solid var(--border);margin:12px 0;}
+@media(max-width:400px){
+  .grid2,.p2col,.f2{grid-template-columns:1fr;}
+  .grid3{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Busca<span>Casa</span></div>
+  <div class="badge">Casa · 3 dorm · Garage</div>
+</header>
+<div class="wrap">
+  <div class="dots">
+    <div class="dot active" id="d1"></div>
+    <div class="dot" id="d2"></div>
+    <div class="dot" id="d3"></div>
+    <div class="dot" id="d4"></div>
+    <div class="dot" id="d5"></div>
+  </div>
+  <div class="card open" id="c1">
+    <div class="card-head" onclick="toggleCard(1)">
+      <div class="sn" id="n1">1</div>
+      <div><div class="card-title">Partido / Municipio</div><div class="card-sub" id="s1">Seleccioná la zona principal</div></div>
+      <div class="arrow">▾</div>
+    </div>
+    <div class="card-body">
+      <div class="grid2" id="gPartido"></div>
+      <button class="btn btn-gold btn-full" onclick="confirmarPartido()">Confirmar →</button>
+    </div>
+  </div>
+  <div class="card locked" id="c2">
+    <div class="card-head" onclick="toggleCard(2)">
+      <div class="sn" id="n2">2</div>
+      <div><div class="card-title">Localidad / Barrio</div><div class="card-sub" id="s2">Elegí el barrio específico</div></div>
+      <div class="arrow">▾</div>
+    </div>
+    <div class="card-body">
+      <div class="grid3" id="gLocalidad"></div>
+      <button class="btn btn-gold btn-full" onclick="confirmarLocalidad()">Confirmar →</button>
+    </div>
+  </div>
+  <div class="card locked" id="c3">
+    <div class="card-head" onclick="toggleCard(3)">
+      <div class="sn" id="n3">3</div>
+      <div><div class="card-title">Rango de precio</div><div class="card-sub" id="s3">USD 100.000 — USD 160.000</div></div>
+      <div class="arrow">▾</div>
+    </div>
+    <div class="card-body">
+      <div class="nota">Cotización: USD 1 ≈ $<b id="cotizRef">1.200</b> — Actualizá si cambia</div>
+      <div class="p2col">
+        <div class="campo"><label>Mínimo (USD)</label><input type="number" id="pMin" value="100000" min="0"></div>
+        <div class="campo"><label>Máximo (USD)</label><input type="number" id="pMax" value="160000" min="0" oninput="calcPesos()"></div>
+      </div>
+      <div class="p2col">
+        <div class="campo"><label>Cotización USD→$</label><input type="number" id="cotiz" value="1200" min="1" oninput="calcPesos()"></div>
+        <div class="campo"><label>Equiv. máx. en pesos</label><input type="text" id="pesoEq" readonly style="color:var(--gold)"></div>
+      </div>
+      <button class="btn btn-gold btn-full" onclick="confirmarPrecio()">Confirmar →</button>
+    </div>
+  </div>
+  <div class="card locked" id="c4">
+    <div class="card-head" onclick="toggleCard(4)">
+      <div class="sn" id="n4">4</div>
+      <div><div class="card-title">Inmobiliaria</div><div class="card-sub" id="s4">Elegí y abrí su web</div></div>
+      <div class="arrow">▾</div>
+    </div>
+    <div class="card-body">
+      <div class="inmob-contador" id="inmobContador"></div>
+      <div class="inmob-lista" id="gInmob"></div>
+    </div>
+  </div>
+  <div class="card locked" id="c5">
+    <div class="card-head" onclick="toggleCard(5)">
+      <div class="sn" id="n5">5</div>
+      <div>
+        <div class="card-title">Propiedades <span class="cnt" id="propCnt" style="display:none">0</span></div>
+        <div class="card-sub" id="s5">Registrá las casas que encontrás</div>
+      </div>
+      <div class="arrow">▾</div>
+    </div>
+    <div class="card-body">
+      <div class="howto">
+        <div class="howto-tit">📋 Cómo funciona</div>
+        <ol>
+          <li>En el paso 4, tocá <strong>Web ↗</strong> en la inmobiliaria elegida — se abre en pestaña nueva</li>
+          <li>Buscá: casas, 3 dormitorios, garage, sin PH, en tu rango de precio</li>
+          <li>Cuando encontrés una que te interese, volvé a <strong>esta pestaña</strong></li>
+          <li>Tocá <strong>+ Registrar propiedad</strong> y completá los datos</li>
+        </ol>
+      </div>
+      <hr>
+      <button class="btn btn-gold btn-full" style="margin-bottom:12px;" onclick="toggleForm()">+ Registrar propiedad</button>
+      <div class="propform" id="propForm">
+        <div class="form-tit" id="formTit">Nueva propiedad</div>
+        <div class="fr"><label>Dirección completa</label><input type="text" id="fDir" placeholder="Calle y número (ej: Mitre 1245)"></div>
+        <div class="f2">
+          <div class="fr"><label>Precio publicado</label><input type="text" id="fPrecio" placeholder="USD 130.000"></div>
+          <div class="fr"><label>Superficie</label><input type="text" id="fSup" placeholder="180 m²"></div>
+        </div>
+        <div class="f2">
+          <div class="fr"><label>Antigüedad</label><input type="text" id="fAnt" placeholder="10 años"></div>
+          <div class="fr"><label>Estado general</label>
+            <select id="fEst"><option value="">Seleccionar</option><option>Excelente</option><option>Muy bueno</option><option>Bueno</option><option>A refaccionar</option></select>
+          </div>
+        </div>
+        <div class="fr"><label>Expensas / Impuestos</label><input type="text" id="fExp" placeholder="Sin expensas / $X por mes"></div>
+        <div class="fr"><label>Link de la publicación</label><input type="text" id="fLink" placeholder="https://..."></div>
+        <div class="fr"><label>Observaciones</label><textarea id="fNota" placeholder="Distancia al centro, estado del barrio, impresiones..."></textarea></div>
+        <div class="fr"><label>Evaluación personal</label>
+          <select id="fEval">
+            <option value="pendiente">Pendiente de evaluar</option>
+            <option value="interesa">Me interesa</option>
+            <option value="descartada">Descartada</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:7px;">
+          <button class="btn btn-gold" onclick="guardarProp()">Guardar</button>
+          <button class="btn btn-ghost" onclick="cancelarForm()">Cancelar</button>
+        </div>
+      </div>
+      <div class="fbar" id="fbar" style="display:none;">
+        <div class="fchip active" onclick="setFiltro('todas',this)">Todas</div>
+        <div class="fchip" onclick="setFiltro('interesa',this)">Me interesa</div>
+        <div class="fchip" onclick="setFiltro('pendiente',this)">Pendiente</div>
+        <div class="fchip" onclick="setFiltro('descartada',this)">Descartada</div>
+      </div>
+      <div class="plist" id="plist">
+        <div class="empty"><div class="ei">🏠</div><p>Todavía no registraste propiedades.<br>Usá el botón <strong>Web ↗</strong> del paso 4,<br>buscá y volvé acá a cargar.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal" id="modalInforme">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:10px;">
+      <div><div class="modal-tit">Informe de Propiedad</div><div class="modal-sub" id="mFecha"></div></div>
+      <button style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;" onclick="cerrarModal()">✕</button>
+    </div>
+    <div id="mBody"></div>
+    <div class="modal-btns">
+      <button class="btn btn-gold" onclick="copiarInforme()">📋 Copiar informe</button>
+      <button class="btn btn-ghost" onclick="cerrarModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const GEO = {
+  "Gral. San Martín": ["Villa Ballester","Loma Hermosa","San Andrés","Villa Lynch","José León Suárez","Santos Lugares","Billinghurst","Villa Maipú","Sáenz Peña","Villa Zagala","Chilavert","Miguelete","General San Martín"],
+  "Tres de Febrero": ["Caseros","El Palomar","Ciudad Jardín","Martín Coronado","Ciudadela","Pablo Podestá"],
+  "Vicente López": ["Florida","Florida Oeste","Munro","Olivos","La Lucila","Vicente López"],
+  "San Isidro": ["San Isidro","Boulogne","Villa Adelina","Beccar","Martínez","Acassuso"],
+  "San Miguel": ["San Miguel","Muñiz","Bella Vista"],
+  "CABA Norte": ["Saavedra","Villa Urquiza","Villa Pueyrredón","Coghlan","Núñez","Belgrano"],
+  "Tigre": ["Don Torcuato","Troncos del Talar","El Talar","General Pacheco"],
+  "Hurlingham": ["Hurlingham","William Morris","Villa Tesei"]
+};
+const INMOBS = [
+  {zona:"Villa Ballester",nombre:"Viviana Villalobos Estate Business",web:"https://www.vivianavillalobos.com.ar"},
+  {zona:"Villa Ballester",nombre:"Inmobiliaria Leiva",web:"https://inmobiliarialeiva.com.ar"},
+  {zona:"Villa Ballester",nombre:"Marcela Kejwan Negocios Inmobiliarios",web:"https://kejwan.com.ar"},
+  {zona:"Villa Ballester",nombre:"Experiencias Inmobiliarias",web:"https://www.experienciasinmobiliarias.com.ar"},
+  {zona:"Loma Hermosa",nombre:"Silvana Longo Properties",web:"https://silvanalongo.com.ar"},
+  {zona:"Loma Hermosa",nombre:"Luis D'Agostino Inmobiliaria",web:"https://www.luisdagostino.com.ar"},
+  {zona:"San Andrés",nombre:"Noa Propiedades",web:"https://www.noapropiedades.com.ar"},
+  {zona:"San Andrés",nombre:"Carrera Propiedades",web:"https://www.carrerapropiedades.com.ar"},
+  {zona:"Villa Lynch",nombre:"Ponte Propiedades",web:"https://www.pontepropiedades.com.ar"},
+  {zona:"Villa Lynch",nombre:"Bruno MB",web:"https://brunomb.com.ar"},
+  {zona:"José León Suárez",nombre:"Rocchio Propiedades",web:"https://www.rocchiopropiedades.com.ar"},
+  {zona:"Santos Lugares",nombre:"Pablo Yaryura Propiedades",web:"https://www.yaryura.com.ar"},
+  {zona:"Villa Maipú",nombre:"Caldeo Propiedades",web:"https://www.caldeopropiedades.com.ar"},
+  {zona:"Sáenz Peña",nombre:"Castellani Piccoli",web:"https://www.castellanipiccoli.com.ar"},
+  {zona:"Billinghurst",nombre:"Borches Real Estate",web:"https://www.borchesinmobiliaria.com.ar"},
+  {zona:"General San Martín",nombre:"Musi Propiedades",web:"https://musipropiedades.com.ar"},
+  {zona:"General San Martín",nombre:"Fassio Inmobiliaria",web:"http://www.fassioinmobiliaria.com.ar"},
+  {zona:"General San Martín",nombre:"Di Paolo Propiedades",web:"https://www.dipaolopropiedades.com.ar"},
+  {zona:"General San Martín",nombre:"Gómez de Montanari",web:"https://gomezdemontanari.com.ar"},
+  {zona:"General San Martín",nombre:"Sinesi Propiedades",web:"https://www.sinesipropiedades.com.ar"},
+  {zona:"General San Martín",nombre:"Laura Farías Propiedades",web:"https://www.laurafarias.com.ar"},
+  {zona:"General San Martín",nombre:"Noely Rodríguez Majeric",web:"https://www.noelyrodriguez.com.ar"},
+  {zona:"General San Martín",nombre:"25 de Mayo Propiedades",web:"https://www.organizacion25demayo.com.ar"},
+  {zona:"General San Martín",nombre:"Matticoli Inmobiliaria",web:"https://www.matticoli.com.ar"},
+  {zona:"General San Martín",nombre:"Montes de Oca Propiedades",web:"https://www.montesdeocapropiedades.com.ar"},
+  {zona:"General San Martín",nombre:"Liliana Cappelletti Propiedades",web:"https://www.cappellettipropiedades.com.ar"},
+  {zona:"General San Martín",nombre:"Roxana Petre Inmobiliaria",web:"https://elgalponero.com.ar"},
+  {zona:"General San Martín",nombre:"ABDUCH Propiedades",web:"https://www.abduch.com.ar"},
+  {zona:"Caseros",nombre:"Mauro Santiago Propiedades",web:"https://www.maurosantiago.com.ar"},
+  {zona:"Caseros",nombre:"Bertolino Propiedades",web:"https://www.bertolinopropiedades.com"},
+  {zona:"El Palomar",nombre:"López Gastesi Propiedades",web:"https://www.lopezgastesi.com.ar"},
+  {zona:"Ciudad Jardín",nombre:"Poggi Propiedades",web:"https://www.poggipropiedades.com.ar"},
+  {zona:"Martín Coronado",nombre:"Mosca Propiedades",web:"https://www.moscapropiedades.com.ar"},
+  {zona:"Ciudadela",nombre:"Melo Propiedades",web:"https://www.melopropiedades.com.ar"},
+  {zona:"Florida",nombre:"Toribio Achával",web:"https://www.toribioachaval.com"},
+  {zona:"Florida Oeste",nombre:"Rollan Propiedades",web:"https://www.rollanpropiedades.com.ar"},
+  {zona:"Munro",nombre:"Cetrángolo Propiedades",web:"https://www.cetrangolo.com"},
+  {zona:"Olivos",nombre:"Dic Propiedades",web:"https://www.dicpropiedades.com.ar"},
+  {zona:"La Lucila",nombre:"Reynolds Propiedades",web:"https://www.reynolds.com.ar"},
+  {zona:"Vicente López",nombre:"Narvaez Inmobiliaria",web:"https://www.narvaez.com.ar"},
+  {zona:"San Isidro",nombre:"Llauro Propiedades",web:"https://www.llauro.com.ar"},
+  {zona:"Boulogne",nombre:"Ricardo Fernández Propiedades",web:"https://www.rfpropiedades.com.ar"},
+  {zona:"Villa Adelina",nombre:"Martin Fonseca Propiedades",web:"https://www.martinfonseca.com.ar"},
+  {zona:"Beccar",nombre:"Tizado",web:"https://www.tizado.com"},
+  {zona:"San Miguel",nombre:"Javier H. Wenk Propiedades",web:"https://www.wenk.com.ar"},
+  {zona:"Muñiz",nombre:"Ferioli Propiedades",web:"https://www.feriolipropiedades.com.ar"},
+  {zona:"Saavedra",nombre:"Ocampo Propiedades",web:"https://www.ocampo.com.ar"},
+  {zona:"Villa Urquiza",nombre:"Soldati Propiedades",web:"https://www.soldati.com.ar"},
+  {zona:"Villa Pueyrredón",nombre:"Predial Propiedades",web:"https://www.predial.com.ar"}
+];
+let E={partido:null,localidad:null,pMin:100000,pMax:160000,cotiz:1200,inmobIdx:null,propiedades:[],filtro:"todas",editIdx:null};
+try{localStorage.removeItem('bc_estado');localStorage.removeItem('bc_inmobs');localStorage.removeItem('bc2_e');}catch(e){}
+try{const s=localStorage.getItem('bc3');if(s)E={...E,...JSON.parse(s)};}catch(e){}
+function save(){try{localStorage.setItem('bc3',JSON.stringify(E));}catch(e){}}
+function getInmobs(partido,localidad){
+  if(!partido||!localidad)return[];
+  const zonas=GEO[partido]||[];
+  const esCabecera=(localidad==="General San Martín"&&partido==="Gral. San Martín")||localidad===partido;
+  if(esCabecera)return INMOBS.filter(im=>zonas.includes(im.zona));
+  return INMOBS.filter(im=>im.zona===localidad);
+}
+calcPesos();renderPartidos();if(E.partido)restaurar();
+function restaurar(){
+  renderPartidos();markDone(1);document.getElementById('s1').textContent=E.partido;
+  if(!E.localidad){abrirCard(2);return;}
+  renderLocalidades();markDone(2);document.getElementById('s2').textContent=E.localidad;
+  document.getElementById('pMin').value=E.pMin;document.getElementById('pMax').value=E.pMax;document.getElementById('cotiz').value=E.cotiz;
+  calcPesos();markDone(3);document.getElementById('s3').textContent=`USD ${E.pMin.toLocaleString()} — USD ${E.pMax.toLocaleString()}`;
+  renderInmobs();
+  if(E.inmobIdx!==null){const im=INMOBS[E.inmobIdx];if(im){markDone(4);document.getElementById('s4').textContent=im.nombre;abrirCard(5);}else{abrirCard(4);}}
+  else{abrirCard(4);}
+  renderProps();
+}
+function renderPartidos(){
+  const g=document.getElementById('gPartido');g.innerHTML='';
+  Object.keys(GEO).forEach(p=>{const b=document.createElement('button');b.className='opcion'+(E.partido===p?' sel':'');b.textContent=p;b.onclick=()=>{E.partido=p;E.localidad=null;E.inmobIdx=null;renderPartidos();};g.appendChild(b);});
+}
+function confirmarPartido(){
+  if(!E.partido){toast('Seleccioná un partido');return;}
+  document.getElementById('s1').textContent=E.partido;markDone(1);renderLocalidades();abrirCard(2);save();toast('Partido: '+E.partido);
+}
+function renderLocalidades(){
+  const g=document.getElementById('gLocalidad');g.innerHTML='';
+  (GEO[E.partido]||[]).forEach(l=>{const b=document.createElement('button');b.className='opcion'+(E.localidad===l?' sel':'');b.textContent=l;b.onclick=()=>{E.localidad=l;E.inmobIdx=null;renderLocalidades();};g.appendChild(b);});
+}
+function confirmarLocalidad(){
+  if(!E.localidad){toast('Seleccioná una localidad');return;}
+  document.getElementById('s2').textContent=E.localidad;markDone(2);abrirCard(3);save();toast('Localidad: '+E.localidad);
+}
+function calcPesos(){
+  const c=parseFloat(document.getElementById('cotiz')?.value)||1200;
+  const mx=parseFloat(document.getElementById('pMax')?.value)||160000;
+  E.cotiz=c;
+  const eq=document.getElementById('pesoEq');if(eq)eq.value='$ '+(mx*c).toLocaleString('es-AR');
+  const ref=document.getElementById('cotizRef');if(ref)ref.textContent=c.toLocaleString('es-AR');
+}
+function confirmarPrecio(){
+  const mn=parseFloat(document.getElementById('pMin').value);const mx=parseFloat(document.getElementById('pMax').value);
+  if(!mn||!mx||mn>=mx){toast('Revisá los valores');return;}
+  E.pMin=mn;E.pMax=mx;E.cotiz=parseFloat(document.getElementById('cotiz').value)||1200;
+  document.getElementById('s3').textContent=`USD ${mn.toLocaleString()} — USD ${mx.toLocaleString()}`;
+  markDone(3);renderInmobs();abrirCard(4);save();toast('Precio confirmado');
+}
+function renderInmobs(){
+  const g=document.getElementById('gInmob');g.innerHTML='';
+  const cnt=document.getElementById('inmobContador');cnt.innerHTML='';
+  const lista=getInmobs(E.partido,E.localidad);
+  if(lista.length===0){g.innerHTML='<div style="font-size:12px;color:var(--muted);padding:6px 0;">No hay inmobiliarias para esta zona.</div>';return;}
+  cnt.innerHTML=`Encontradas <b>${lista.length}</b> inmobiliarias para <b>${E.localidad}</b>`;
+  lista.forEach(im=>{
+    const idx=INMOBS.indexOf(im);
+    const url=im.web?(im.web.startsWith('http')?im.web:'https://'+im.web):null;
+    const row=document.createElement('div');
+    row.className='inmob-row'+(E.inmobIdx===idx?' sel':'');
+    row.innerHTML=`<div class="inmob-ico">🏠</div><div class="inmob-info"><div class="inmob-nombre">${im.nombre}</div><div class="inmob-zona">${im.zona}</div></div><div class="inmob-btns"><button class="btn-elegir" onclick="elegirInmob(${idx})">${E.inmobIdx===idx?'✓ Elegida':'Elegir'}</button>${url?`<a class="btn-web" href="${url}" target="_blank" rel="noopener">Web ↗</a>`:''}</div>`;
+    g.appendChild(row);
+  });
+}
+function elegirInmob(idx){
+  E.inmobIdx=idx;const im=INMOBS[idx];
+  document.getElementById('s4').textContent=im.nombre;markDone(4);save();renderInmobs();abrirCard(5);renderProps();toast('Inmobiliaria: '+im.nombre);
+}
+function toggleForm(){const f=document.getElementById('propForm');if(f.classList.contains('vis')){f.classList.remove('vis');return;}limpiarForm();f.classList.add('vis');f.scrollIntoView({behavior:'smooth',block:'nearest'});}
+function cancelarForm(){document.getElementById('propForm').classList.remove('vis');limpiarForm();}
+function limpiarForm(){['fDir','fPrecio','fSup','fAnt','fExp','fLink','fNota'].forEach(id=>document.getElementById(id).value='');document.getElementById('fEst').value='';document.getElementById('fEval').value='pendiente';document.getElementById('formTit').textContent='Nueva propiedad';E.editIdx=null;}
+function guardarProp(){
+  const dir=document.getElementById('fDir').value.trim();const precio=document.getElementById('fPrecio').value.trim();
+  if(!dir||!precio){toast('Ingresá dirección y precio');return;}
+  const im=E.inmobIdx!==null?INMOBS[E.inmobIdx]:null;
+  const prop={direccion:dir,precio,inmobiliaria:im?im.nombre:'',partido:E.partido||'',localidad:E.localidad||'',superficie:document.getElementById('fSup').value.trim(),antiguedad:document.getElementById('fAnt').value.trim(),estado:document.getElementById('fEst').value,expensas:document.getElementById('fExp').value.trim(),link:document.getElementById('fLink').value.trim(),notas:document.getElementById('fNota').value.trim(),eval:document.getElementById('fEval').value,fecha:new Date().toLocaleDateString('es-AR')};
+  if(E.editIdx!==null){E.propiedades[E.editIdx]=prop;toast('Actualizada');}else{E.propiedades.unshift(prop);toast('Guardada ✓');}
+  save();document.getElementById('propForm').classList.remove('vis');renderProps();
+}
+function renderProps(){
+  const list=document.getElementById('plist');const fbar=document.getElementById('fbar');const cnt=document.getElementById('propCnt');
+  const total=E.propiedades.length;const filtradas=E.propiedades.filter(p=>E.filtro==='todas'||p.eval===E.filtro);
+  cnt.style.display=total>0?'inline-flex':'none';cnt.textContent=total;fbar.style.display=total>0?'flex':'none';
+  if(filtradas.length===0){list.innerHTML=`<div class="empty"><div class="ei">🏠</div><p>${total===0?'Todavía no registraste propiedades.<br>Usá <strong>Web ↗</strong> en el paso 4.':'No hay propiedades con ese filtro.'}</p></div>`;return;}
+  list.innerHTML='';
+  filtradas.forEach(p=>{
+    const ri=E.propiedades.indexOf(p);const elabel={interesa:'Me interesa',descartada:'Descartada',pendiente:'Pendiente'}[p.eval]||'Pendiente';
+    const d=document.createElement('div');d.className='pcard';
+    d.innerHTML=`<div class="pestado ${p.eval}">${elabel}</div><div class="pdir">${p.direccion}</div><div class="pmeta">${p.partido} · ${p.localidad} · ${p.inmobiliaria}</div><div class="pprecio">${p.precio}</div><div class="ptags"><span class="ptag ok">3 dormitorios</span><span class="ptag ok">Garage</span><span class="ptag ok">Casa</span>${p.superficie?`<span class="ptag">${p.superficie}</span>`:''}${p.estado?`<span class="ptag">${p.estado}</span>`:''}${p.antiguedad?`<span class="ptag">${p.antiguedad}</span>`:''}</div><div class="pacciones"><button class="btn btn-ghost btn-sm" onclick="verInforme(${ri})">📄 Informe</button>${p.link?`<a class="btn btn-ghost btn-sm" href="${p.link}" target="_blank">🔗 Publicación</a>`:''}<button class="btn btn-ghost btn-sm" onclick="editarProp(${ri})">✏️ Editar</button><button class="btn btn-danger" onclick="eliminarProp(${ri})">✕</button></div>`;
+    list.appendChild(d);
+  });
+}
+function setFiltro(f,el){E.filtro=f;document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderProps();}
+function editarProp(idx){const p=E.propiedades[idx];document.getElementById('fDir').value=p.direccion;document.getElementById('fPrecio').value=p.precio;document.getElementById('fSup').value=p.superficie||'';document.getElementById('fAnt').value=p.antiguedad||'';document.getElementById('fEst').value=p.estado||'';document.getElementById('fExp').value=p.expensas||'';document.getElementById('fLink').value=p.link||'';document.getElementById('fNota').value=p.notas||'';document.getElementById('fEval').value=p.eval;document.getElementById('formTit').textContent='Editar propiedad';E.editIdx=idx;const f=document.getElementById('propForm');f.classList.add('vis');f.scrollIntoView({behavior:'smooth',block:'nearest'});}
+function eliminarProp(idx){if(!confirm('¿Eliminar?'))return;E.propiedades.splice(idx,1);save();renderProps();toast('Eliminada');}
+let informeIdx=null;
+function verInforme(idx){
+  informeIdx=idx;const p=E.propiedades[idx];
+  document.getElementById('mFecha').textContent='Registrada el '+p.fecha;
+  const f=(l,v)=>v?`<div class="mfila"><span class="mlab">${l}</span><span class="mval">${v}</span></div>`:'';
+  const fg=(l,v)=>v?`<div class="mfila"><span class="mlab">${l}</span><span class="mval gold">${v}</span></div>`:'';
+  document.getElementById('mBody').innerHTML=`<div class="msec"><div class="msec-tit">Ubicación</div>${f('Partido',p.partido)}${f('Localidad',p.localidad)}${f('Dirección',p.direccion)}</div><div class="msec"><div class="msec-tit">Comercialización</div>${f('Inmobiliaria',p.inmobiliaria)}${fg('Precio',p.precio)}${f('Expensas',p.expensas||'No especificado')}</div><div class="msec"><div class="msec-tit">Características</div>${f('Tipo','Casa (sin PH)')}${f('Dormitorios','3')}${f('Garage','Sí')}${f('Superficie',p.superficie)}${f('Antigüedad',p.antiguedad)}${f('Estado',p.estado)}</div>${p.notas?`<div class="msec"><div class="msec-tit">Observaciones</div><div class="mnotas">${p.notas}</div></div>`:''}${p.link?`<div class="msec"><div class="msec-tit">Publicación</div><a href="${p.link}" target="_blank" style="color:var(--gold);font-size:12px;word-break:break-all;">${p.link}</a></div>`:''}<div class="msec"><div class="msec-tit">Evaluación</div>${f('Estado',p.eval==='interesa'?'⭐ Me interesa':p.eval==='descartada'?'✕ Descartada':'⏳ Pendiente')}</div>`;
+  document.getElementById('modalInforme').classList.add('vis');
+}
+function cerrarModal(){document.getElementById('modalInforme').classList.remove('vis');}
+function copiarInforme(){
+  if(informeIdx===null)return;const p=E.propiedades[informeIdx];
+  const txt=['INFORME DE PROPIEDAD','====================','Partido: '+(p.partido||'-'),'Localidad: '+(p.localidad||'-'),'Dirección: '+p.direccion,'Inmobiliaria: '+(p.inmobiliaria||'-'),'Precio: '+p.precio,'Expensas: '+(p.expensas||'No especificado'),'Tipo: Casa (sin PH)','Dormitorios: 3','Garage: Sí','Superficie: '+(p.superficie||'-'),'Antigüedad: '+(p.antiguedad||'-'),'Estado: '+(p.estado||'-'),'Evaluación: '+(p.eval==='interesa'?'Me interesa':p.eval==='descartada'?'Descartada':'Pendiente'),p.notas?'Observaciones: '+p.notas:'',p.link?'Link: '+p.link:'','Registrada: '+p.fecha].filter(Boolean).join('\n');
+  navigator.clipboard.writeText(txt).then(()=>toast('Informe copiado ✓'));
+}
+function abrirCard(n){for(let i=1;i<=5;i++){const c=document.getElementById('c'+i);const d=document.getElementById('d'+i);c.classList.remove('open','locked');if(i===n){c.classList.add('open');d.classList.add('active');}else if(i>n){c.classList.add('locked');}}}
+function toggleCard(n){const c=document.getElementById('c'+n);if(c.classList.contains('locked'))return;c.classList.toggle('open');}
+function markDone(n){document.getElementById('n'+n).textContent='✓';document.getElementById('n'+n).classList.add('done');document.getElementById('d'+n).classList.remove('active');document.getElementById('d'+n).classList.add('done');}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+document.getElementById('pMax').addEventListener('input',calcPesos);
+document.getElementById('cotiz').addEventListener('input',calcPesos);
+</script>
+</body>
+</html>
