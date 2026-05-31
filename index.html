@@ -523,5 +523,6 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 document.getElementById('pMax').addEventListener('input',calcPesos);
 document.getElementById('cotiz').addEventListener('input',calcPesos);
 </script>
+  <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/buscacasa/sw.js');}</script>
 </body>
 </html>
