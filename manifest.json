@@ -8,14 +8,16 @@
   "theme_color": "#c9a84c",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "/buscacasa/icon.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "icon.png",
+      "src": "/buscacasa/icon.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
